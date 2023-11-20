@@ -1,4 +1,4 @@
-package com.pascal.movieku_compose.presentation.detail
+package com.pascal.movieku_compose.presentation.screen.detail
 
 import android.content.Intent
 import android.net.Uri
@@ -69,7 +69,8 @@ import com.pascal.movieku_compose.R
 import com.pascal.movieku_compose.data.local.model.FavoritesItem
 import com.pascal.movieku_compose.data.remote.dtos.Movie
 import com.pascal.movieku_compose.domain.model.MovieDetailInfo
-import com.pascal.movieku_compose.presentation.home.MainViewModel
+import com.pascal.movieku_compose.presentation.component.RatingBar
+import com.pascal.movieku_compose.presentation.screen.main.MainViewModel
 import com.pascal.movieku_compose.presentation.ui.theme.MovieKuComposeTheme
 import com.pascal.movieku_compose.utils.POSTER_BASE_URL
 import com.pascal.movieku_compose.utils.W185
@@ -101,13 +102,18 @@ fun DetailScreen(
                             onNavBack()
                         }) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back Button")
-                         }
+                    }
                 },
                 colors = TopAppBarDefaults.largeTopAppBarColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
             )
         },
         content = { paddingValues ->
-            DetailContent(movieDetailInfo = movieDetailInfo, paddingValues = paddingValues, viewModel = viewModel)
+            DetailContent(
+                modifier = modifier,
+                movieDetailInfo = movieDetailInfo,
+                paddingValues = paddingValues,
+                viewModel = viewModel
+            )
         }
     )
 }
@@ -120,7 +126,7 @@ fun DetailContent(
     viewModel: MainViewModel?
 ) {
     if (movieDetailInfo == null) return
-    
+
     var favBtnClicked by rememberSaveable {
         mutableStateOf(movieDetailInfo.favorite)
     }
@@ -130,8 +136,12 @@ fun DetailContent(
     val url2 = POSTER_BASE_URL + W185 + myMovie.poster_path
     val coroutineScope = rememberCoroutineScope()
 
-    Surface(modifier = modifier.padding(paddingValues), color = MaterialTheme.colorScheme.background) {
-        Column(modifier = Modifier.verticalScroll(state = rememberScrollState(), enabled = true)
+    Surface(
+        modifier = modifier.padding(paddingValues),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Column(
+            modifier = Modifier.verticalScroll(state = rememberScrollState(), enabled = true)
         ) {
             Box(
                 modifier = Modifier
@@ -165,12 +175,13 @@ fun DetailContent(
                         .height(124.dp)
                         .width(86.dp)
                 ) {
-                    AsyncImage(model = ImageRequest.Builder(LocalContext.current)
-                        .data(url2)
-                        .size(Size.ORIGINAL)
-                        .crossfade(false)
-                        .build(),
-                        contentDescription ="",
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(url2)
+                            .size(Size.ORIGINAL)
+                            .crossfade(false)
+                            .build(),
+                        contentDescription = "",
                         contentScale = ContentScale.FillBounds,
                         modifier = Modifier
                             .fillMaxSize()
@@ -178,7 +189,8 @@ fun DetailContent(
                     )
                 }
 
-                val relaseDate = SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(myMovie.release_date)
+                val relaseDate =
+                    SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(myMovie.release_date)
                 val reFormatDate = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH).format(relaseDate)
 
                 Column(
@@ -209,7 +221,7 @@ fun DetailContent(
                             )
                         ) {
                             favBtnClicked = !favBtnClicked
-                            viewModel?.UpdateFavMovie(
+                            viewModel?.updateFavMovie(
                                 FavoritesItem(myMovie.id, myMovie.poster_path),
                                 favBtnClicked
                             )
@@ -235,7 +247,8 @@ fun DetailContent(
                 Box(
                     Modifier
                         .width(8.dp)
-                        .fillMaxHeight(1f))
+                        .fillMaxHeight(1f)
+                )
             }
 
             Text(
@@ -331,16 +344,23 @@ fun DetailContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 4.dp, start = 8.dp, end = 8.dp)
-                        .background(MaterialTheme.colorScheme.tertiaryContainer, shape = CircleShape)
+                        .background(
+                            MaterialTheme.colorScheme.tertiaryContainer,
+                            shape = CircleShape
+                        )
 
                 )
             }
 
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp),
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp, start = 8.dp, end = 8.dp)
-                    .background(MaterialTheme.colorScheme.tertiaryContainer, shape = RoundedCornerShape(8.dp))
+                    .background(
+                        MaterialTheme.colorScheme.tertiaryContainer,
+                        shape = RoundedCornerShape(8.dp)
+                    )
             ) {
                 for (i in (0..movieDetailInfo.review.size - 1)) {
                     Text(

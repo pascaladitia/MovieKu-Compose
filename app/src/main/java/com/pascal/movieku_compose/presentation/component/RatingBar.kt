@@ -1,4 +1,4 @@
-package com.pascal.movieku_compose.presentation.detail
+package com.pascal.movieku_compose.presentation.component
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons

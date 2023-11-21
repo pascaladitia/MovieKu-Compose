@@ -23,7 +23,7 @@ internal class Repository @Inject constructor(private val appService: AppService
 
     override fun getMovies(selection: Int): Flow<PagingData<Movie>> {
         return Pager(
-            config = PagingConfig(pageSize = 20),
+            config = PagingConfig(pageSize = 1),
             pagingSourceFactory = {
                 MoviesPagingSource(appService, localDataSource, selection)
             }

@@ -13,6 +13,7 @@ class MoviesPagingSource(
     private val localDataSource: LocalDataSource,
     private val selection: Int
 ): PagingSource<Int, Movie>() {
+
     override fun getRefreshKey(state: PagingState<Int, Movie>): Int? {
         return state.anchorPosition?.let { anchorPosition ->
             state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)

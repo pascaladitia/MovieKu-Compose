@@ -80,7 +80,6 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
     implementation("androidx.compose.runtime:runtime-livedata:1.5.4")
     implementation("io.coil-kt:coil-compose:2.4.0")
-    implementation("com.facebook.shimmer:shimmer:0.5.0")
 
     // Paging
     implementation("androidx.paging:paging-common-ktx:3.2.1")

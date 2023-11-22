@@ -28,6 +28,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -39,6 +40,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -75,6 +78,7 @@ import com.pascal.movieku_compose.presentation.component.RatingBar
 import com.pascal.movieku_compose.presentation.screen.main.MainViewModel
 import com.pascal.movieku_compose.presentation.ui.theme.MovieKuComposeTheme
 import com.pascal.movieku_compose.utils.POSTER_BASE_URL
+import com.pascal.movieku_compose.utils.UiState
 import com.pascal.movieku_compose.utils.W185
 import com.pascal.movieku_compose.utils.W500
 import com.pascal.movieku_compose.utils.YOUTUBE_TN_URL
@@ -90,9 +94,11 @@ fun DetailScreen(
     movieId: Int,
     onNavBack: () -> Unit
 ) {
-    val movieDetailInfo by produceState<MovieDetailInfo?>(initialValue = null) {
-        value = viewModel.suspendGetSingleMovie(movieId)
+    LaunchedEffect(key1 = true) {
+        viewModel.loadDetailMovie(movieId)
     }
+
+    val uiState by viewModel.movieDetailUiState.collectAsState()
 
     Scaffold(
         topBar = {
@@ -110,12 +116,42 @@ fun DetailScreen(
             )
         },
         content = { paddingValues ->
-            DetailContent(
-                modifier = modifier,
-                movieDetailInfo = movieDetailInfo,
-                paddingValues = paddingValues,
-                viewModel = viewModel
-            )
+            when (uiState) {
+                is UiState.Loading -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                is UiState.Success -> {
+                    val movieDetailInfo = (uiState as UiState.Success).data
+                    DetailContent(
+                        modifier = modifier,
+                        movieDetailInfo = movieDetailInfo,
+                        paddingValues = paddingValues,
+                        viewModel = viewModel
+                    )
+                }
+
+                is UiState.Error -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Error: ${(uiState as UiState.Error).exception.message}",
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
         }
     )
 }

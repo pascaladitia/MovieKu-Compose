@@ -10,6 +10,7 @@ import com.pascal.movieku_compose.domain.model.MovieDetailInfo
 import com.pascal.movieku_compose.domain.usecase.GetMoviesUC
 import com.pascal.movieku_compose.domain.usecase.GetSingleMovieUC
 import com.pascal.movieku_compose.domain.usecase.UpdateFavorites
+import com.pascal.movieku_compose.utils.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,8 +27,8 @@ class MainViewModel @Inject constructor(
     private val _movies = MutableStateFlow(PagingData.empty<Movie>())
     val movies: StateFlow<PagingData<Movie>> = _movies
 
-    private val _isLoading = MutableStateFlow(true)
-    val isLoading: StateFlow<Boolean> = _isLoading
+    private val _movieDetailUiState = MutableStateFlow<UiState<MovieDetailInfo?>>(UiState.Loading)
+    val movieDetailUiState: StateFlow<UiState<MovieDetailInfo?>> = _movieDetailUiState
 
 
     suspend fun loadMovies(selection: Int) {
@@ -38,10 +39,14 @@ class MainViewModel @Inject constructor(
             }
     }
 
-    suspend fun suspendGetSingleMovie(id: Int): MovieDetailInfo {
-        return getSingleMovieUseCase.execute(GetSingleMovieUC.Params(id))
+    suspend fun loadDetailMovie(id: Int) {
+        try {
+            val result = getSingleMovieUseCase.execute(GetSingleMovieUC.Params(id))
+            _movieDetailUiState.value = UiState.Success(result)
+        } catch (e: Exception) {
+            _movieDetailUiState.value = UiState.Error(e)
+        }
     }
-
     fun updateFavMovie(item: FavoritesItem, favChecked: Boolean) {
         viewModelScope.launch {
             updateFavMovieUC.execute(UpdateFavorites.Params(item, favChecked))

@@ -399,8 +399,7 @@ fun DetailContent(
                     Row(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(end = 16.dp),
-                        horizontalArrangement = Arrangement.Center
+                            .padding(end = 16.dp)
                     ) {
                         Icon(
                             Icons.Filled.Person,

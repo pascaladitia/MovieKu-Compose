@@ -1,6 +1,7 @@
 package com.pascal.movieku_compose.presentation.screen.detail
 
 import android.content.Intent
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -104,7 +106,7 @@ fun DetailScreen(
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back Button")
                     }
                 },
-                colors = TopAppBarDefaults.largeTopAppBarColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                colors = TopAppBarDefaults.largeTopAppBarColors(containerColor = Color.DarkGray)
             )
         },
         content = { paddingValues ->
@@ -131,6 +133,7 @@ fun DetailContent(
         mutableStateOf(movieDetailInfo.favorite)
     }
 
+    val context = LocalContext.current
     val myMovie = movieDetailInfo.movie
     val url = POSTER_BASE_URL + W500 + myMovie.backdrop_path
     val url2 = POSTER_BASE_URL + W185 + myMovie.poster_path
@@ -148,7 +151,6 @@ fun DetailContent(
                     .height(220.dp)
                     .fillMaxWidth()
             ) {
-                val context = LocalContext.current
                 val painter = remember {
                     ImageRequest.Builder(context)
                         .data(url)
@@ -198,15 +200,24 @@ fun DetailContent(
                         .padding(start = 8.dp)
                         .weight(1.0f)
                 ) {
-                    Text(text = myMovie.title, overflow = TextOverflow.Ellipsis, maxLines = 2)
+                    val rating = myMovie.vote_count.toString()
+                    val double = "${rating[0]}.${rating[1]}".toDoubleOrNull()
+
+                    Text(
+                        text = myMovie.title,
+                        fontWeight = FontWeight.Medium,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 2
+                    )
                     Text(text = reFormatDate)
+                    Spacer(modifier = Modifier.height(12.dp))
                     RatingBar(
                         modifier = Modifier.height(20.dp),
                         stars = 10,
-                        rating = myMovie.vote_average,
-                        starsColor = Color.Red
+                        rating = double ?: 0.0,
+                        starsColor = Color.Yellow
                     )
-                    Text(text = "${myMovie.vote_count}/10")
+                    Text(text = "$double/10")
                 }
 
                 Box(
@@ -259,39 +270,22 @@ fun DetailContent(
                     .padding(all = 8.dp),
             )
 
-            if (movieDetailInfo.videos.isNotEmpty()) {
-                Text(
-                    text = "Trailers",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp, bottom = 4.dp, start = 8.dp, end = 8.dp)
-                        .background(
-                            MaterialTheme.colorScheme.tertiaryContainer,
-                            shape = CircleShape
-                        )
-                )
-            } else {
-                Text(
-                    "No available trailers",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    color = Color.Gray,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 4.dp, bottom = 4.dp)
-                        .background(
-                            MaterialTheme.colorScheme.tertiaryContainer,
-                            shape = CircleShape
-                        )
-                        .padding(top = 8.dp, bottom = 8.dp)
-                )
-            }
+            Text(
+                text = if (movieDetailInfo.videos.isNotEmpty()) "Trailers"
+                else "No available trailers",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(all = 8.dp)
+                    .background(
+                        Color.DarkGray,
+                        shape = CircleShape
+                    )
+                    .padding(vertical = 4.dp)
+            )
 
-            val context = LocalContext.current
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -300,18 +294,23 @@ fun DetailContent(
             ) {
                 items(movieDetailInfo.videos) {
                     val urlThumbnail = YOUTUBE_TN_URL + it.key + "/hqdefault.jpg"
-                    val painter = ImageRequest.Builder(LocalContext.current)
+                    val painter = ImageRequest.Builder(context)
                         .data(urlThumbnail)
                         .size(Size.ORIGINAL)
                         .build()
 
                     Box(
                         contentAlignment = Alignment.Center,
-                        modifier = Modifier.clickable {
-                            val trailerUrl = YOUTUBE_TRAILERS_URL + it.key
-                            val i = Intent(Intent.ACTION_VIEW, Uri.parse(trailerUrl))
-                            ContextCompat.startActivity(context, i, null)
-                        }
+                        modifier = Modifier
+                            .height(100.dp)
+                            .zIndex(0f)
+                            .padding(all = 4.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable {
+                                val trailerUrl = YOUTUBE_TRAILERS_URL + it.key
+                                val i = Intent(Intent.ACTION_VIEW, Uri.parse(trailerUrl))
+                                ContextCompat.startActivity(context, i, null)
+                            }
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_play_svg),
@@ -326,10 +325,9 @@ fun DetailContent(
                         AsyncImage(
                             model = painter,
                             contentDescription = "",
-                            contentScale = ContentScale.Inside,
+                            contentScale = ContentScale.Crop,
                             modifier = Modifier
-                                .height(100.dp)
-                                .zIndex(0f)
+                                .fillMaxSize()
                         )
                     }
                 }
@@ -343,11 +341,12 @@ fun DetailContent(
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 4.dp, start = 8.dp, end = 8.dp)
+                        .padding(all = 8.dp)
                         .background(
-                            MaterialTheme.colorScheme.tertiaryContainer,
+                            Color.DarkGray,
                             shape = CircleShape
                         )
+                        .padding(vertical = 4.dp)
 
                 )
             }
@@ -358,7 +357,7 @@ fun DetailContent(
                     .fillMaxWidth()
                     .padding(bottom = 16.dp, start = 8.dp, end = 8.dp)
                     .background(
-                        MaterialTheme.colorScheme.tertiaryContainer,
+                        Color.DarkGray,
                         shape = RoundedCornerShape(8.dp)
                     )
             ) {
@@ -368,7 +367,6 @@ fun DetailContent(
                         fontSize = 12.sp,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
-                        color = MaterialTheme.colorScheme.onTertiaryContainer,
                         modifier = Modifier
                             .padding(horizontal = 8.dp)
                             .clickable {
@@ -384,7 +382,11 @@ fun DetailContent(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(
+    showBackground = true,
+    showSystemUi = true,
+    uiMode = UI_MODE_NIGHT_YES
+)
 @Composable
 fun DefaultPreviewDetail() {
     MovieKuComposeTheme {

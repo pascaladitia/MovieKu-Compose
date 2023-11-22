@@ -3,19 +3,33 @@ package com.pascal.movieku_compose.presentation.screen.main
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -24,6 +38,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.pascal.movieku_compose.R
 import com.pascal.movieku_compose.presentation.screen.detail.DetailScreen
 import com.pascal.movieku_compose.presentation.navigation.NavigationItem
 import com.pascal.movieku_compose.presentation.navigation.Screen
@@ -32,16 +47,50 @@ import com.pascal.movieku_compose.presentation.screen.home.HomeScreen
 import com.pascal.movieku_compose.presentation.screen.popular.PopularScreen
 import com.pascal.movieku_compose.presentation.ui.theme.MovieKuComposeTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        setContent {
+            SplashScreen(onTimeout = {
+                navigateToMainScreen()
+            })
+        }
+    }
+
+    private fun navigateToMainScreen() {
         setContent {
             MovieKuComposeTheme(darkTheme = true) {
-                MainScreen()
+                AnimatedVisibility(visible = true, enter = fadeIn(), exit = fadeOut()) {
+                    MainScreen()
+                }
             }
         }
+    }
+}
+
+@Composable
+fun SplashScreen(onTimeout: () -> Unit) {
+    LaunchedEffect(key1 = true) {
+        delay(3000)
+        onTimeout.invoke()
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.no_image),
+            contentDescription = null,
+            modifier = Modifier
+                .align(Alignment.Center)
+                .size(200.dp)
+        )
     }
 }
 

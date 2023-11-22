@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -27,6 +28,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
@@ -392,26 +394,39 @@ fun DetailContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp, start = 8.dp, end = 8.dp)
-                    .background(
-                        Color.DarkGray,
-                        shape = RoundedCornerShape(8.dp)
-                    )
             ) {
-                for (i in (0..movieDetailInfo.review.size - 1)) {
-                    Text(
-                        text = movieDetailInfo.review[i].content,
-                        fontSize = 12.sp,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
+                for (data in movieDetailInfo.review) {
+                    Row(
                         modifier = Modifier
-                            .padding(horizontal = 8.dp)
-                            .clickable {
-                                val reviewsUrl = movieDetailInfo.review[i].url;
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(reviewsUrl))
-                                ContextCompat.startActivity(context, intent, null)
-                            }
-                    )
-                    Divider()
+                            .fillMaxSize()
+                            .padding(end = 16.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            Icons.Filled.Person,
+                            contentDescription = "",
+                            tint = Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+
+                        Text(
+                            text = data.content,
+                            fontSize = 12.sp,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                .clickable {
+                                    val reviewsUrl = data.url;
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(reviewsUrl))
+                                    ContextCompat.startActivity(context, intent, null)
+                                }
+                                .background(
+                                    Color.DarkGray,
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .padding(all = 8.dp)
+                        )
+                    }
                 }
             }
         }

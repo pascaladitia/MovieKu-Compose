@@ -56,12 +56,8 @@ fun FavoriteScreen(
                     }
                 }
 
-                movies.loadState.refresh is LoadState.Error -> {
-                    // Handle refresh error
-                }
-
-                movies.loadState.append is LoadState.Error -> {
-                    // Handle append error
+                movies.loadState.refresh is LoadState.Error || movies.loadState.append is LoadState.Error -> {
+                    //handle error
                 }
             }
         }

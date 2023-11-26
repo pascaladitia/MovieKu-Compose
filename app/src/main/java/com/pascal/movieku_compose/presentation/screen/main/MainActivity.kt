@@ -105,7 +105,7 @@ fun MainScreen(
 
     Scaffold(
         bottomBar = {
-            if (currentRoute != Screen.DetailScreen.route) {
+            if (currentRoute in listOf(Screen.HomeScreen.route, Screen.PopularScreen.route, Screen.FavoriteScreen.route)) {
                 BottomBar(navController)
             }
         }
